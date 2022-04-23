@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+    <title>Shot Timer</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        height: 100vh;
+      }
+      #timerContainer{
+        display: flex;
+        font-size: 8em;
+        flex-direction: row;
+        height: 100%;
+      }
+
+      #timerContainer > *{
+        flex: 1;
+        border: 5px solid black;
+        border-radius: 5px;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        background: greenyellow;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      #timerContainer *.warning {
+        background-color: yellow;
+      }
+      #timerContainer *.danger {
+        background-color: red;
+      }
+    </style>
+</head>
+<body>
+    <div id="timerContainer">
+      <div>
+        <div>Match</div>
+        <div id="match"></div>
+        <div></div>
+      </div>
+      <div>
+        <div>Shot</div>
+        <div id="shot"></div>
+        <div></div>
+      </div>
+    </div>
+    <audio id="outOfTimeAudio" src="outoftime.mp3"></audio>
+    <audio id="warningAudio" src="warning.mp3"></audio>
+</body>
+<script>
+  
+  const MATCH_START = 60 * 30;
+  const SHOT_START = 30;
+  const SHOT_HALF_TIME = 15;
+
+  const matchDiv = document.getElementById('match');
+  const shotDiv = document.getElementById('shot');
+  const outOfTimeAudio = document.getElementById('outOfTimeAudio');
+  const warningAudio = document.getElementById('warningAudio');
+
+  let match;
+  let shot;
+
+  let matchInterval;
+  let shotInterval;
+
+  function start(){
+    reset();
+    startMatchInterval();
+    startShotInterval();
+  }
+
+  function startMatchInterval(){
+    matchInterval = setInterval(() => {
+      if (match > 0)
+        match -= 1;
+      updateMatchTimer();
+    }, 1000);
+  }
+
+  function startShotInterval(){
+    shotDiv.parentElement.classList.remove('warning');
+    shotDiv.parentElement.classList.remove('danger');
+    shotInterval = setInterval(() => {
+      if (shot > 0)
+        shot -= 1;
+      updateShotTimer();
+    }, 1000);
+  }
+
+  function updateShotTimer(){
+    shotDiv.innerText = shot;
+
+    colorTimer(shotDiv, shot, 5, 0);
+    if (shot <= 0){
+      outOfTimeAudio.play();
+      clearInterval(shotInterval);
+    } else if (shot <= 5)
+      warningAudio.play();
+  }
+
+  function updateMatchTimer(){
+    let matchMinutes = Math.floor(match / 60);
+    let matchSeconds = match % 60;
+    colorTimer(matchDiv, match, 60*15, 60);
+    matchDiv.innerText = `${matchMinutes}:${matchSeconds.toString().padStart(2, '0')}`;
+  }
+
+  function colorTimer(el, time, warningTime, dangerTime){
+    if (time <= dangerTime){
+      el.parentElement.classList.remove('warning');
+      el.parentElement.classList.add('danger');
+    }else if (time <= warningTime){
+      el.parentElement.classList.add('warning');
+    }
+  }
+
+  function nextShot(){
+    clearInterval(shotInterval);
+
+    if (match > MATCH_START / 2){
+      shot = SHOT_START;
+    } else{
+      shot = SHOT_HALF_TIME;
+    }
+    updateShotTimer();
+    startShotInterval();
+  }
+  
+  document.addEventListener('keydown', ev => {
+    switch (ev.key){
+      case '1':
+        nextShot();
+        break;
+      case '2':
+        start();
+        break;
+      case '3':
+        reset();
+        break;
+      default:
+        break;
+    }
+  });
+
+  function reset(){
+    match = MATCH_START;
+    shot = SHOT_START;
+    if (matchInterval != undefined)
+      clearInterval(matchInterval);
+    if (shotInterval != undefined)
+      clearInterval(shotInterval);
+    updateMatchTimer();
+    updateShotTimer();
+  }
+ 
+  reset();
+
+  let socket = io();
+
+  socket.on('start', () => {
+    start();
+  });
+  socket.on('shot', () => {
+    nextShot();
+  });
+  socket.on('reset', () => {
+    reset();
+  });
+
+</script>
+</html>

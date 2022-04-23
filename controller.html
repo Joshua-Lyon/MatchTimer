@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+    <title>
+        Controller
+    </title>
+    <style>
+        button{
+            
+            background-color: green;
+            width: 100%;
+            font-weight: bold;
+            font-size: 2em;
+        }
+        #start{
+            background-color: yellow;
+        }
+        #shot{
+            padding: 2em 1em;
+            background-color: yellowgreen;
+        }
+        #reset{
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <button id="start">Start</button>
+    <hr>
+    <button id="reset">Reset</button>
+    <hr>
+    <button id="shot">Shot</button>
+</body>
+    <script>
+        let socket = io();
+        document.getElementById('start').addEventListener('click', ev => {
+            socket.emit('start');
+        });
+        document.getElementById('shot').addEventListener('click', ev => {
+            socket.emit('shot');
+        });
+        document.getElementById('reset').addEventListener('click', ev => {
+            socket.emit('reset');
+        });
+    </script>
+</html>
