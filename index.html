@@ -201,6 +201,15 @@
   socket.on('reset', () => {
     reset();
   });
+  socket.on('pause', () => {
+    pauseMatch();
+  });
+  socket.on('resume', () => {
+    resumeMatch();
+  });
+  socket.on('extend', () => {
+    extendShot();
+  });
 
 </script>
 </html>

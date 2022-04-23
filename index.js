@@ -35,6 +35,15 @@ io.on('connection', socket => {
   socket.on('reset', () => {
     socket.broadcast.emit('reset');
   });
+  socket.on('pause', () => {
+    socket.broadcast.emit('pause');
+  });
+  socket.on('resume', () => {
+    socket.broadcast.emit('resume');
+  });
+  socket.on('extend', () => {
+    socket.broadcast.emit('extend');
+  });
 });
 
 

@@ -9,42 +9,69 @@
         Controller
     </title>
     <style>
+        body{
+            height: 100vh;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 2fr 3fr 2fr;
+            grid-template-areas:    "start pause resume"
+                                    "shot shot shot"
+                                    "extend extend reset";
+            gap: 10px;
+            background-color: darkslategray;
+        }
         button{
-            
-            background-color: green;
+            --lightness: 50%;
             width: 100%;
             font-weight: bold;
             font-size: 2em;
         }
         #start{
-            background-color: yellow;
+            background-color: hsl(60, 100%, var(--lightness));
+            grid-area: start;
         }
         #shot{
             padding: 2em 1em;
-            background-color: yellowgreen;
+            background-color: hsl(80, 61%, var(--lightness));
+            grid-area: shot;
         }
         #reset{
-            background-color: red;
+            background-color: hsl(0, 100%, var(--lightness));
+            grid-area: reset;
+        }
+        #extend{
+            background-color: hsl(60, 100%, var(--lightness));
+            grid-area: extend;
+        }
+        #pause{
+            background-color: hsl(0, 0%, var(--lightness));
+            grid-area: pause;
+        }
+        #resume{
+            background-color: hsl(203, 100%, var(--lightness));
+            grid-area: resume;
+        }
+        button:active{
+            --lightness: 35%;
         }
     </style>
 </head>
 <body>
     <button id="start">Start</button>
-    <hr>
+    <button id="pause">Pause</button>
+    <button id="resume">Resume</button>
+    <button id="extend">Extend</button>
     <button id="reset">Reset</button>
-    <hr>
     <button id="shot">Shot</button>
 </body>
     <script>
         let socket = io();
-        document.getElementById('start').addEventListener('click', ev => {
-            socket.emit('start');
-        });
-        document.getElementById('shot').addEventListener('click', ev => {
-            socket.emit('shot');
-        });
-        document.getElementById('reset').addEventListener('click', ev => {
-            socket.emit('reset');
+
+        Array.from(document.getElementsByTagName('button')).forEach(element => {
+            element.addEventListener('click', ev => {
+            socket.emit(ev.target.id);
+            });
         });
     </script>
 </html>
