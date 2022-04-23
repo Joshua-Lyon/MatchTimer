@@ -136,21 +136,6 @@
     startShotInterval();
   }
   
-  document.addEventListener('keydown', ev => {
-    switch (ev.key){
-      case '5':
-        nextShot();
-        break;
-      case '7':
-        start();
-        break;
-      case '4':
-        reset();
-        break;
-      default:
-        break;
-    }
-  });
 
   function reset(){
     match = MATCH_START;
@@ -162,8 +147,48 @@
     updateMatchTimer();
     updateShotTimer();
   }
+
+  function extendShot(){
+    shot += match > MATCH_START/2? SHOT_START : SHOT_HALF_TIME;
+    updateShotTimer();
+  }
+
+  function pauseMatch(){
+    if (matchInterval != undefined)
+      clearInterval(matchInterval);
+  }
+
+  function resumeMatch(){
+    startMatchInterval();
+  }
  
   reset();
+
+  document.addEventListener('keydown', ev => {
+    switch (ev.key){
+      case '5':
+        nextShot();
+        break;
+      case '7':
+        start();
+        break;
+      case '4':
+        reset();
+        break;
+      case '6':
+        extendShot();
+        break;
+      case '8':
+        pauseMatch();
+        break;
+      case '9':
+        resumeMatch();
+        break;
+      default:
+        break;
+    }
+  });
+
 
   let socket = io();
 
