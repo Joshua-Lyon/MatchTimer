@@ -80,6 +80,8 @@
   }
 
   function startMatchInterval(){
+    if(matchInterval != null)
+      return;
     matchInterval = setInterval(() => {
       if (match > 0)
         match -= 1;
@@ -90,6 +92,8 @@
   function startShotInterval(){
     shotDiv.parentElement.classList.remove('warning');
     shotDiv.parentElement.classList.remove('danger');
+    if (shotInterval != null)
+      return;
     shotInterval = setInterval(() => {
       if (shot > 0)
         shot -= 1;
@@ -104,6 +108,7 @@
     if (shot <= 0){
       outOfTimeAudio.play();
       clearInterval(shotInterval);
+      shotInterval = null;
     } else if (shot <= 5)
       warningAudio.play();
   }
@@ -126,6 +131,7 @@
 
   function nextShot(){
     clearInterval(shotInterval);
+    shotInterval = null;
 
     if (match > MATCH_START / 2){
       shot = SHOT_START;
@@ -140,10 +146,14 @@
   function reset(){
     match = MATCH_START;
     shot = SHOT_START;
-    if (matchInterval != undefined)
+    if (matchInterval != null){
       clearInterval(matchInterval);
-    if (shotInterval != undefined)
+      matchInterval = null;
+    }
+    if (shotInterval != null){
       clearInterval(shotInterval);
+      shotInterval = null;
+    }
     updateMatchTimer();
     updateShotTimer();
   }
@@ -154,8 +164,8 @@
   }
 
   function pauseMatch(){
-    if (matchInterval != undefined)
       clearInterval(matchInterval);
+      matchInterval = null;
   }
 
   function resumeMatch(){
