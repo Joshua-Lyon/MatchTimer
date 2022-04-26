@@ -55,6 +55,9 @@
     </div>
     <audio id="outOfTimeAudio" src="outoftime.mp3"></audio>
     <audio id="warningAudio" src="warning.mp3"></audio>
+    <audio src="ring1.mp3" id="ring1"></audio>
+    <audio src="ring2.mp3" id="ring2"></audio>
+    
 </body>
 <script>
   
@@ -66,12 +69,16 @@
   const shotDiv = document.getElementById('shot');
   const outOfTimeAudio = document.getElementById('outOfTimeAudio');
   const warningAudio = document.getElementById('warningAudio');
+  const ring1Audio = document.getElementById('ring1');
+  const ring2Audio = document.getElementById('ring2');
 
   let match;
   let shot;
 
   let matchInterval;
   let shotInterval;
+
+  let syncShotWithMatch = false;
 
   function start(){
     reset();
@@ -90,8 +97,6 @@
   }
 
   function startShotInterval(){
-    shotDiv.parentElement.classList.remove('warning');
-    shotDiv.parentElement.classList.remove('danger');
     if (shotInterval != null)
       return;
     shotInterval = setInterval(() => {
@@ -118,6 +123,26 @@
     let matchSeconds = match % 60;
     colorTimer(matchDiv, match, 60*15, 60);
     matchDiv.innerText = `${matchMinutes}:${matchSeconds.toString().padStart(2, '0')}`;
+
+    if (match == MATCH_START/2)
+      ring1Audio.play();
+    if (match == 60)
+      ring2Audio.play();
+
+    if (match <= 0){
+      match = 0;
+      shot = 0;
+      clearInterval(matchInterval);
+      matchInterval = null;
+    }
+
+    if (match <= SHOT_HALF_TIME){
+
+      clearInterval(shotInterval);
+      shotInterval = null;
+      shot = matchSeconds;
+      updateShotTimer(); 
+    }
   }
 
   function colorTimer(el, time, warningTime, dangerTime){
@@ -126,17 +151,24 @@
       el.parentElement.classList.add('danger');
     }else if (time <= warningTime){
       el.parentElement.classList.add('warning');
+    } else {
+      el.parentElement.classList.remove('warning');
+      el.parentElement.classList.remove('danger');
     }
   }
 
   function nextShot(){
     clearInterval(shotInterval);
     shotInterval = null;
+    if (syncShotWithMatch)
+      return;
 
     if (match > MATCH_START / 2){
       shot = SHOT_START;
-    } else{
+    } else if (match > SHOT_HALF_TIME){
       shot = SHOT_HALF_TIME;
+    } else {
+
     }
     updateShotTimer();
     startShotInterval();
@@ -164,6 +196,7 @@
   }
 
   function pauseMatch(){
+      pauseShot();
       clearInterval(matchInterval);
       matchInterval = null;
   }
@@ -171,7 +204,25 @@
   function resumeMatch(){
     startMatchInterval();
   }
+
+  function fastForward(){
+    match -= 60;
+    updateMatchTimer();
+  }
+  function fastForward2(){
+    match -= 10;
+    updateMatchTimer();
+  }
  
+  function pauseShot(){
+    clearInterval(shotInterval);
+    shotInterval = null;
+  }
+
+  function resumeShot(){
+    startShotInterval();
+  }
+
   reset();
 
   document.addEventListener('keydown', ev => {
@@ -193,6 +244,18 @@
         break;
       case '9':
         resumeMatch();
+        break;
+      case '2':
+        pauseShot();
+        break;
+      case '3':
+        resumeShot();
+        break;
+      case 'm':
+        fastForward();
+        break;
+      case 'n':
+        fastForward2();
         break;
       default:
         break;

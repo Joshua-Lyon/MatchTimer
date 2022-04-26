@@ -10,20 +10,19 @@
     </title>
     <style>
         body{
-            height: 100vh;
+            height: 90vh;
             margin: 0;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 2fr 3fr 2fr;
-            grid-template-areas:    "start pause resume"
-                                    "shot shot shot"
-                                    "extend extend reset";
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: 2fr 3fr 1fr;
+            grid-template-areas:    "pause pause resume resume"
+                                    "shot shot shot extend"
+                                    "start start reset reset";
             gap: 10px;
             background-color: darkslategray;
         }
         button{
             --lightness: 50%;
-            width: 100%;
             font-weight: bold;
             font-size: 2em;
         }
@@ -32,7 +31,6 @@
             grid-area: start;
         }
         #shot{
-            padding: 2em 1em;
             background-color: hsl(80, 61%, var(--lightness));
             grid-area: shot;
         }
